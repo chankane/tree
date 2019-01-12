@@ -1,37 +1,65 @@
+import numpy as np
+from numba import jit
 import matplotlib.pyplot as plt
-import node as nd
+from cmath import rect
 
 
-class Tree:
-    @staticmethod
-    def __plot_line(start, end):
-        plt.plot([start[0], end[0]], [start[1], end[1]], color="m")
+@jit
+def _calc_leaf_pos(root_pos, data):
+    pos_list = np.zeros(data.shape[0], np.complex64)
+    print(pos_list)
+    # pos_list[0] = self.__pos
+    for i in range(1, len(data)):
+        vec = rect(data[i][0], data[i][1])
+        pos_list[i] = pos_list[i // 2] + vec
 
-    @staticmethod
-    def __plot(root):
-        for e in root.children:
-            Tree.__plot_line(root.data, e.data)
-            Tree.__plot(e)
+    return pos_list[(len(data) - 1) // 2 + 1:]
 
-    @staticmethod
-    def __create(pos, depth):
-        tmp = nd.Node(pos, [])
-        if depth <= 0:
-            return tmp
 
-        # for i in range(2):
-        tmp.children.append(Tree.__create([pos[0] - 1, pos[1] + 1], depth - 1))
-        tmp.children.append(Tree.__create([pos[0] + 1, pos[1] + 1], depth - 1))
+@jit
+def _calc_pos_list(root_pos, data):
+    total = data.copy()
+    pos_list = np.zeros(data.shape[0], np.complex64)
+    pos_list[0] = root_pos
+    for i in range(1, len(data)):
+        pos_list[i] = pos_list[i // 2] + rect(data[i][0], data[i][1])
 
-        return tmp
+    return pos_list
 
-    def __init__(self, depth):
-        self.__root = self.__create([0, 0], depth)
-        plt.grid(True)
 
-    def set_offset(self, offset):
-        self.__root.data = offset
+@jit
+def _plot(pos_list: np.ndarray):
+    for i in range(1, len(pos_list)):
+        x = np.array([pos_list[i].real, pos_list[i // 2].real])
+        y = np.array([pos_list[i].imag, pos_list[i // 2].imag])
+        plt.plot(x, y, color="m", marker="x")
 
-    def draw(self):
-        Tree.__plot(self.__root)
-        plt.show()
+
+def eval(data):
+    self.__data = data
+
+
+def main():
+    plt.grid(True)
+    # plt.plot((0, 1), (0, 1))
+    # plt.show()
+
+    # data = np.tile(np.array([0.2, np.pi / 3]), (8, 1))
+    data = np.array([
+        [0, 0],
+        [0.2, 0],
+        [0.2, np.pi / 3], [0.2, -np.pi / 3],
+        [0.2, np.pi / 3], [0.2, -np.pi / 3],
+        [0.2, np.pi / 3], [0.2, -np.pi / 3],
+    ])
+    # print(data)
+    # print(_calc_leaf_pos((0, 0), data))
+    print(_calc_pos_list(0, data))
+    _plot(_calc_pos_list(0, data))
+    plt.axes().set_aspect('equal', 'datalim')
+    plt.show()
+    return 0
+
+
+if __name__ == "__main__":
+    main()

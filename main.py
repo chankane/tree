@@ -1,7 +1,7 @@
-import tree
+from tree import Tree
 
 
-tree.Tree(5).draw()
+tree.Tree(8).draw()
 
 
 def cre_tree():
