@@ -3,3 +3,5 @@ __pycache__
 venv
 *.def
 *.old
+test.py
+trush.py
