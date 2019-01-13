@@ -9,23 +9,19 @@ def _norm(pos_list: np.ndarray):
     len_list = np.zeros(pos_list.shape[0])
     for i in range(1, len(pos_list)):
         local = dup_list[i] - dup_list[i // 2]
-        len_list[i] = len_list[i // 2] + np.linalg.norm(local)
+        e = np.linalg.norm(local)
+        len_list[i] = len_list[i // 2] + e
         if len_list[i] > 1:
-            # print(local)
-            local /= np.linalg.norm(local)
-            # print(local)
-            local *= 1 - len_list[i // 2]
-            # print(local)
+            local *= (1 - len_list[i // 2]) / e
             dup_list[i] = dup_list[i // 2] + local
             len_list[i] = 1
-    # print(len_list)
     return dup_list
 
 
 @jit
 def _cre_rand_pos_list(size):
-    data = np.random.rand(size, 2) * 2
-    data -= 1
+    data = np.random.rand(size, 2)
+    data -= 0.5
     data[0] = [0, 0]
     return data
 
@@ -42,7 +38,7 @@ def main():
     # plt.plot((0, 1), (0, 1))
     # plt.show()
 
-    data = _cre_rand_pos_list(2**5)
+    data = _cre_rand_pos_list(2**3)
     # data = np.zeros((2**3, 2))
 
     """
